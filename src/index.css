@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   SaaviGen Theme Tokens
+   ========================================================= */
+
 :root {
   --sg-bg: #07090e;
   --sg-surface: #0e1118;
@@ -17,49 +21,223 @@
   --sg-warning: #bb4d00;
   --sg-danger: #fb2c36;
   --sg-info: #51a2ff;
+
+  color-scheme: dark;
 }
 
-* { box-sizing: border-box; }
+html[data-theme="dark"] {
+  --sg-bg: #07090e;
+  --sg-surface: #0e1118;
+  --sg-elevated: #111827;
+  --sg-primary: #7ec8cc;
+  --sg-accent: #2b7fff;
+  --sg-text: #eceff3;
+  --sg-muted: #90a1b9;
+  --sg-border: #1b2434;
+  --sg-success: #4eae76;
+  --sg-warning: #bb4d00;
+  --sg-danger: #fb2c36;
+  --sg-info: #51a2ff;
 
-html, body, #root { min-height: 100%; }
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  --sg-bg: #f5f7fa;
+  --sg-surface: #ffffff;
+  --sg-elevated: #eef2f7;
+  --sg-primary: #176f75;
+  --sg-accent: #1558c0;
+  --sg-text: #17202b;
+  --sg-muted: #5f6f82;
+  --sg-border: #d8e0ea;
+  --sg-success: #26764a;
+  --sg-warning: #9a4a00;
+  --sg-danger: #c5222c;
+  --sg-info: #245f9f;
+
+  color-scheme: light;
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
 
 body {
   margin: 0;
+
   background:
-    radial-gradient(circle at 18% 0%, rgba(43,127,255,.08), transparent 28%),
-    radial-gradient(circle at 86% 12%, rgba(126,200,204,.06), transparent 24%),
+    radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--sg-accent) 8%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 86% 12%,
+      color-mix(in srgb, var(--sg-primary) 7%, transparent),
+      transparent 24%
+    ),
     var(--sg-bg);
+
   color: var(--sg-text);
   font-family: "Instrument Sans", system-ui, sans-serif;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
 }
 
-button, input, select { font: inherit; }
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* =========================================================
+   Selection
+   ========================================================= */
 
 ::selection {
-  background: rgba(126,200,204,.22);
+  background: color-mix(
+    in srgb,
+    var(--sg-primary) 22%,
+    transparent
+  );
+
   color: var(--sg-text);
 }
 
-.sg-border { border: 1px solid var(--sg-border); }
-.sg-surface { background: var(--sg-surface); }
-.sg-panel { background: rgba(14,17,24,.82); border: 1px solid var(--sg-border); }
+/* =========================================================
+   SaaviGen Utility Classes
+   ========================================================= */
+
+.sg-border {
+  border: 1px solid var(--sg-border);
+}
+
+.sg-surface {
+  background: var(--sg-surface);
+}
+
+.sg-panel {
+  background: color-mix(
+    in srgb,
+    var(--sg-surface) 92%,
+    transparent
+  );
+
+  border: 1px solid var(--sg-border);
+}
+
 .sg-focus:focus-visible {
   outline: 2px solid var(--sg-primary);
   outline-offset: 2px;
 }
 
-.scrollbar-thin::-webkit-scrollbar { width: 7px; height: 7px; }
-.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+/* =========================================================
+   Scrollbar
+   ========================================================= */
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #263247;
+  background: color-mix(
+    in srgb,
+    var(--sg-muted) 35%,
+    transparent
+  );
+
   border-radius: 99px;
 }
 
+/* =========================================================
+   Animation
+   ========================================================= */
+
 .fade-in {
-  animation: fadeIn .18s ease-out both;
+  animation: fadeIn 0.18s ease-out both;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   System Theme
+   Only used when JS sets data-theme="system"
+   ========================================================= */
+
+html[data-theme="system"] {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] {
+    --sg-bg: #07090e;
+    --sg-surface: #0e1118;
+    --sg-elevated: #111827;
+    --sg-primary: #7ec8cc;
+    --sg-accent: #2b7fff;
+    --sg-text: #eceff3;
+    --sg-muted: #90a1b9;
+    --sg-border: #1b2434;
+    --sg-success: #4eae76;
+    --sg-warning: #bb4d00;
+    --sg-danger: #fb2c36;
+    --sg-info: #51a2ff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"] {
+    --sg-bg: #f5f7fa;
+    --sg-surface: #ffffff;
+    --sg-elevated: #eef2f7;
+    --sg-primary: #176f75;
+    --sg-accent: #1558c0;
+    --sg-text: #17202b;
+    --sg-muted: #5f6f82;
+    --sg-border: #d8e0ea;
+    --sg-success: #26764a;
+    --sg-warning: #9a4a00;
+    --sg-danger: #c5222c;
+    --sg-info: #245f9f;
+  }
+}
+
+#theme-select {
+  appearance: auto;
+  background-color: var(--sg-surface);
+  color: var(--sg-text);
+}
+
+#theme-select option {
+  background-color: var(--sg-surface);
+  color: var(--sg-text);
 }

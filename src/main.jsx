@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import AppShell from "./components/AppShell";
 import Overview from "./pages/Overview";
 import Projects from "./pages/Projects";
 import "./index.css";
+
+const THEME_KEY = "saavigen-theme";
 
 function ComingSoon({ name }) {
   return (
@@ -26,9 +28,56 @@ function ComingSoon({ name }) {
   );
 }
 
+function getInitialTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+
+  if (saved === "dark" || saved === "light" || saved === "system") {
+    return saved;
+  }
+
+  return "system";
+}
+
+function applyTheme(theme) {
+  const resolved =
+    theme === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : theme;
+
+  document.documentElement.setAttribute("data-theme", resolved);
+  document.documentElement.style.colorScheme = resolved;
+}
+
 function App() {
   const [active, setActive] = useState("Projects");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+    applyTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== "system") return;
+
+    const mediaQuery = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+
+    const handleChange = () => {
+      applyTheme("system");
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, [theme]);
 
   let page;
 
@@ -46,6 +95,8 @@ function App() {
       onNavigate={setActive}
       sidebarOpen={sidebarOpen}
       setSidebarOpen={setSidebarOpen}
+      theme={theme}
+      onThemeChange={setTheme}
     >
       {page}
     </AppShell>
