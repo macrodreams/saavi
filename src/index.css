@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sg-bg: #07090e;
+  --sg-surface: #0e1118;
+  --sg-elevated: #111827;
+  --sg-primary: #7ec8cc;
+  --sg-accent: #2b7fff;
+  --sg-text: #eceff3;
+  --sg-muted: #90a1b9;
+  --sg-border: #1b2434;
+  --sg-success: #4eae76;
+  --sg-warning: #bb4d00;
+  --sg-danger: #fb2c36;
+  --sg-info: #51a2ff;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(43,127,255,.08), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba(126,200,204,.06), transparent 24%),
+    var(--sg-bg);
+  color: var(--sg-text);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+}
+
+button, input, select { font: inherit; }
+
+::selection {
+  background: rgba(126,200,204,.22);
+  color: var(--sg-text);
+}
+
+.sg-border { border: 1px solid var(--sg-border); }
+.sg-surface { background: var(--sg-surface); }
+.sg-panel { background: rgba(14,17,24,.82); border: 1px solid var(--sg-border); }
+.sg-focus:focus-visible {
+  outline: 2px solid var(--sg-primary);
+  outline-offset: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 7px; height: 7px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #263247;
+  border-radius: 99px;
+}
+
+.fade-in {
+  animation: fadeIn .18s ease-out both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
