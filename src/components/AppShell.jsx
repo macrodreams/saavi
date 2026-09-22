@@ -1,7 +1,9 @@
 import {
   Activity,
   Bell,
+  Boxes,
   ChevronDown,
+  CircleGauge,
   FolderKanban,
   LayoutDashboard,
   Menu,
@@ -9,6 +11,8 @@ import {
   Moon,
   Search,
   Settings2,
+  Shield,
+  ShieldAlert,
   Sun,
   Users,
   X
@@ -64,12 +68,35 @@ export default function AppShell({
   onThemeChange,
   children
 }) {
-  const nav = [
-    { label: "Overview", icon: LayoutDashboard },
-    { label: "Projects", icon: FolderKanban },
-    { label: "Activity", icon: Activity },
-    { label: "Team", icon: Users }
-  ];
+  const navSections = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Control Room", icon: LayoutDashboard }
+    ]
+  },
+  {
+    title: "Observability",
+    items: [
+      { label: "Live Telemetry", icon: Activity },
+      { label: "Security Threats", icon: ShieldAlert, badge: "12" },
+      { label: "Token Matrix", icon: CircleGauge }
+    ]
+  },
+  {
+    title: "Governance",
+    items: [
+      { label: "Guardrail Rules", icon: Shield },
+      { label: "Model Registry", icon: Boxes }
+    ]
+  },
+  {
+    title: "Workspace",
+    items: [
+      { label: "Projects", icon: FolderKanban, badge: "06" }
+    ]
+  }
+];
 
   return (
     <div className="min-h-screen bg-sg-bg text-sg-text">
@@ -143,52 +170,85 @@ export default function AppShell({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-3">
+<nav className="flex-1 space-y-4 overflow-y-auto p-3">
 
-          <div className="mb-2 px-2 font-mono text-[10px] uppercase tracking-[.18em] text-sg-muted">
-            Workspace
-          </div>
+  {navSections.map((section) => (
+    <div key={section.title}>
 
-          {nav.map(({ label, icon: Icon }) => {
-            const selected = active === label;
+      <div className="mb-2 px-2 font-mono text-[10px] uppercase tracking-[.18em] text-sg-muted">
+        {section.title}
+      </div>
 
-            return (
-              <button
-                key={label}
-                onClick={() => {
-                  onNavigate(label);
-                  setSidebarOpen(false);
-                }}
-                className={[
-                  "sg-focus flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+      <div className="space-y-1">
+        {section.items.map(({ label, icon: Icon, badge }) => {
+          const selected = active === label;
 
-                  selected
-                    ? "border border-sg-primary/20 bg-sg-primary/10 text-sg-text"
-                    : "border border-transparent text-sg-muted hover:bg-sg-elevated hover:text-sg-text"
-                ].join(" ")}
-              >
+          return (
+           <button
+  key={label}
+  onClick={() => {
+    onNavigate(label);
+    setSidebarOpen(false);
+  }}
+  className={[
+    "sg-focus flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+    selected
+      ? "border text-sg-text"
+      : "border border-transparent text-sg-muted hover:bg-sg-elevated hover:text-sg-text"
+  ].join(" ")}
+  style={
+    selected
+      ? {
+          borderColor:
+            "color-mix(in srgb, var(--sg-primary) 22%, transparent)",
+          backgroundColor:
+            "color-mix(in srgb, var(--sg-primary) 7%, transparent)"
+        }
+      : undefined
+  }
+>
+  <Icon
+    size={17}
+    className={
+      selected
+        ? "text-sg-primary"
+        : "text-sg-muted"
+    }
+  />
 
-                <Icon
-                  size={17}
-                  className={
-                    selected
-                      ? "text-sg-primary"
-                      : "text-sg-muted"
-                  }
-                />
+  <span>{label}</span>
 
-                <span>{label}</span>
+  {badge && (
+    <span
+      className={[
+        "ml-auto font-mono text-[10px]",
+        label === "Security Threats"
+          ? "rounded-full px-1.5 py-0.5"
+          : "text-sg-muted"
+      ].join(" ")}
+      style={
+        label === "Security Threats"
+          ? {
+              color: "var(--sg-danger)",
+              border: "1px solid color-mix(in srgb, var(--sg-danger) 25%, transparent)",
+              backgroundColor:
+                "color-mix(in srgb, var(--sg-danger) 8%, transparent)"
+            }
+          : undefined
+      }
+    >
+      {badge}
+    </span>
+  )}
+</button>
+          );
+        })}
+      </div>
 
-                {label === "Projects" && (
-                  <span className="ml-auto font-mono text-[10px] text-sg-muted">
-                    06
-                  </span>
-                )}
+    </div>
+  ))}
 
-              </button>
-            );
-          })}
-        </nav>
+</nav>
 
         {/* Sidebar footer */}
         <div className="border-t border-sg-border p-3">

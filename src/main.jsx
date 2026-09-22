@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import AppShell from "./components/AppShell";
+import ControlRoom from "./pages/ControlRoom";
 import Overview from "./pages/Overview";
 import Projects from "./pages/Projects";
 import "./index.css";
@@ -51,7 +52,7 @@ function applyTheme(theme) {
 }
 
 function App() {
-  const [active, setActive] = useState("Projects");
+  const [active, setActive] = useState("Control Room");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [theme, setTheme] = useState(getInitialTheme);
@@ -81,13 +82,15 @@ function App() {
 
   let page;
 
-  if (active === "Overview") {
-    page = <Overview onProjects={() => setActive("Projects")} />;
-  } else if (active === "Projects") {
-    page = <Projects />;
-  } else {
-    page = <ComingSoon name={active} />;
-  }
+if (active === "Control Room") {
+  page = <ControlRoom />;
+} else if (active === "Overview") {
+  page = <Overview onProjects={() => setActive("Projects")} />;
+} else if (active === "Projects") {
+  page = <Projects />;
+} else {
+  page = <ComingSoon name={active} />;
+}
 
   return (
     <AppShell
