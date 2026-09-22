@@ -34,3 +34,8 @@ Then open the local Vite URL shown in the terminal.
 - `src/index.css` — canonical visual tokens and global styles
 
 No backend, database, authentication, or API is required yet.
+
+
+## Theme system
+
+Dark, Light, and System themes are available from the top bar. The selection persists in `localStorage`.
