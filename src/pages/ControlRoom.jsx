@@ -19,6 +19,8 @@ import {
   Zap
 } from "lucide-react";
 
+import { useEffect, useState } from "react";
+
 const threatData = [
   { label: "00", events: 32, blocked: 12 },
   { label: "02", events: 46, blocked: 18 },
@@ -262,7 +264,6 @@ function ThreatChart() {
   const height = 230;
   const paddingX = 12;
   const paddingY = 18;
-
   const max = 110;
 
   const getX = (index) =>
@@ -310,7 +311,9 @@ function ThreatChart() {
             d={eventsPath}
             fill="none"
             stroke="var(--sg-primary)"
-            strokeWidth="3"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
 
@@ -318,19 +321,11 @@ function ThreatChart() {
             d={blockedPath}
             fill="none"
             stroke="var(--sg-accent)"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
-
-          {threatData.map((item, index) => (
-            <circle
-              key={item.label}
-              cx={getX(index)}
-              cy={getY(item.events)}
-              r="2.5"
-              fill="var(--sg-primary)"
-            />
-          ))}
         </svg>
 
         <div className="absolute bottom-2 left-3 right-3 flex justify-between font-mono text-[8px] text-sg-muted">
@@ -351,13 +346,86 @@ function ThreatChart() {
           Blocked
         </span>
 
-        <span className="ml-auto">Last 24 hours</span>
+        <span className="ml-auto">
+          Last 24 hours
+        </span>
       </div>
     </div>
   );
 }
+const LIVE_EVENT_TEMPLATES = [
+  {
+    title: "Prompt injection blocked",
+    source: "agent-research-01",
+    severity: "High",
+    icon: ShieldCheck
+  },
+  {
+    title: "External tool invocation",
+    source: "saavi-search",
+    severity: "Info",
+    icon: Search
+  },
+  {
+    title: "Sensitive output detected",
+    source: "customer-agent",
+    severity: "Medium",
+    icon: TriangleAlert
+  },
+  {
+    title: "Policy rule triggered",
+    source: "finance-assistant",
+    severity: "High",
+    icon: LockKeyhole
+  },
+  {
+    title: "Guardrail evaluation passed",
+    source: "content-agent",
+    severity: "Info",
+    icon: CheckCircle2
+  },
+  {
+    title: "Model request completed",
+    source: "saavi-core",
+    severity: "Info",
+    icon: Bot
+  },
+  {
+    title: "Unusual tool pattern detected",
+    source: "research-agent",
+    severity: "Medium",
+    icon: AlertTriangle
+  }
+];
+
+function createLiveEvent() {
+  const template =
+    LIVE_EVENT_TEMPLATES[
+      Math.floor(Math.random() * LIVE_EVENT_TEMPLATES.length)
+    ];
+
+  return {
+    ...template,
+    time: new Date().toLocaleTimeString("en-GB", {
+      hour12: false
+    })
+  };
+}
 
 function LiveStream() {
+  const [events, setEvents] = useState(liveEvents);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setEvents((current) => [
+        createLiveEvent(),
+        ...current.slice(0, 4)
+      ]);
+    }, 1800);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Card className="p-5">
       <SectionHeader
@@ -372,13 +440,18 @@ function LiveStream() {
       />
 
       <div className="mt-5 space-y-1">
-        {liveEvents.map((event) => {
+        {events.map((event, index) => {
           const Icon = event.icon;
 
           return (
             <div
-              key={`${event.time}-${event.title}`}
-              className="flex items-center gap-3 rounded-lg border border-transparent px-2 py-3 transition hover:border-sg-border hover:bg-sg-elevated"
+              key={`${event.time}-${event.title}-${index}`}
+              className={[
+                "flex items-center gap-3 rounded-lg border border-transparent px-2 py-3 transition-all duration-500",
+                index === 0
+                  ? "bg-sg-elevated"
+                  : "hover:border-sg-border hover:bg-sg-elevated"
+              ].join(" ")}
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-sg-border bg-sg-elevated text-sg-muted">
                 <Icon size={14} />
@@ -414,53 +487,187 @@ function LiveStream() {
 }
 
 function OpenIncidents() {
+  const incidents = [
+    {
+      id: "THR-20481",
+      title: "Indirect prompt injection via ticket comment",
+      type: "Prompt injection",
+      severity: "Critical",
+      actor: "j.doe_dev",
+      status: "Investigating"
+    },
+    {
+      id: "THR-20474",
+      title: "Exfil attempt through MCP filesystem",
+      type: "Data exfiltration",
+      severity: "Critical",
+      actor: "dataguard.bot",
+      status: "Contained"
+    },
+    {
+      id: "THR-20466",
+      title: "Shadow model call outside registry",
+      type: "Shadow LLM",
+      severity: "High",
+      actor: "m.ross_ml",
+      status: "Open"
+    },
+    {
+      id: "THR-20451",
+      title: "Unsanitized code execution in eval harness",
+      type: "Code execution",
+      severity: "High",
+      actor: "threathunter",
+      status: "Investigating"
+    },
+    {
+      id: "THR-20439",
+      title: "PII in completion streamed to log drain",
+      type: "PII leak",
+      severity: "Medium",
+      actor: "a.smith",
+      status: "Resolved"
+    }
+  ];
+
+  const severityStyles = {
+    Critical: {
+      color: "var(--sg-danger)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-danger) 12%, transparent)"
+    },
+    High: {
+      color: "var(--sg-warning)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-warning) 12%, transparent)"
+    },
+    Medium: {
+      color: "var(--sg-info)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-info) 12%, transparent)"
+    }
+  };
+
+  const statusStyles = {
+    Investigating: {
+      color: "var(--sg-warning)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-warning) 12%, transparent)"
+    },
+    Contained: {
+      color: "var(--sg-success)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-success) 12%, transparent)"
+    },
+    Open: {
+      color: "var(--sg-danger)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-danger) 12%, transparent)"
+    },
+    Resolved: {
+      color: "var(--sg-success)",
+      backgroundColor:
+        "color-mix(in srgb, var(--sg-success) 12%, transparent)"
+    }
+  };
+
   return (
-    <Card className="p-5">
-      <SectionHeader
-        eyebrow="Security"
-        title="Open Incidents"
-        action={
-         <span
-  className="rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[.08em]"
-  style={{
-    color: "var(--sg-danger)",
-    borderColor:
-      "color-mix(in srgb, var(--sg-danger) 32%, transparent)",
-    backgroundColor:
-      "color-mix(in srgb, var(--sg-danger) 9%, transparent)"
-  }}
->
-  03 OPEN
-</span>
-        }
-      />
+    <Card className="h-full overflow-hidden">
+      <div className="flex items-center justify-between border-b border-sg-border px-4 py-4">
+        <h3 className="text-sm font-semibold text-sg-text">
+          Open incidents
+        </h3>
 
-      <div className="mt-5 space-y-2">
-        {incidents.map((incident) => (
-          <div
-            key={incident.id}
-            className="rounded-lg border border-sg-border p-3"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="font-mono text-[9px] text-sg-muted">
-                  {incident.id}
-                </div>
+        <button
+          type="button"
+          className="sg-focus text-[11px] text-sg-muted transition hover:text-sg-text"
+        >
+          All threats
+        </button>
+      </div>
 
-                <div className="mt-1 text-[11px] font-medium text-sg-text">
-                  {incident.title}
-                </div>
-              </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] border-collapse">
+          <thead>
+            <tr className="border-b border-sg-border">
+              <th className="px-4 py-2.5 text-left font-mono text-[9px] font-normal uppercase tracking-[.1em] text-sg-muted">
+                ID
+              </th>
 
-              <SeverityBadge severity={incident.severity} />
-            </div>
+              <th className="px-4 py-2.5 text-left font-mono text-[9px] font-normal uppercase tracking-[.1em] text-sg-muted">
+                Incident
+              </th>
 
-            <div className="mt-3 flex items-center gap-1.5 font-mono text-[8px] text-sg-muted">
-              <Clock3 size={10} />
-              Opened {incident.age} ago
-            </div>
-          </div>
-        ))}
+              <th className="px-4 py-2.5 text-left font-mono text-[9px] font-normal uppercase tracking-[.1em] text-sg-muted">
+                Severity
+              </th>
+
+              <th className="px-4 py-2.5 text-left font-mono text-[9px] font-normal uppercase tracking-[.1em] text-sg-muted">
+                Actor
+              </th>
+
+              <th className="px-4 py-2.5 text-left font-mono text-[9px] font-normal uppercase tracking-[.1em] text-sg-muted">
+                Status
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {incidents.map((incident) => (
+              <tr
+                key={incident.id}
+                className="border-b border-sg-border last:border-b-0 transition hover:bg-sg-elevated"
+              >
+                {/* ID */}
+                <td className="whitespace-nowrap px-4 py-3.5 align-middle">
+                  <span className="font-mono text-[10px] text-sg-muted">
+                    {incident.id}
+                  </span>
+                </td>
+
+                {/* Incident */}
+                <td className="px-4 py-3.5 align-middle">
+                  <div className="min-w-[250px]">
+                    <div className="text-[11px] font-semibold text-sg-text">
+                      {incident.title}
+                    </div>
+
+                    <div className="mt-0.5 font-mono text-[9px] text-sg-muted">
+                      {incident.type}
+                    </div>
+                  </div>
+                </td>
+
+                {/* Severity */}
+                <td className="whitespace-nowrap px-4 py-3.5 align-middle">
+                  <span
+                    className="inline-flex rounded-full px-2 py-0.5 text-[9px] font-medium"
+                    style={severityStyles[incident.severity]}
+                  >
+                    {incident.severity}
+                  </span>
+                </td>
+
+                {/* Actor */}
+                <td className="whitespace-nowrap px-4 py-3.5 align-middle">
+                  <span className="text-[11px] text-sg-muted">
+                    {incident.actor}
+                  </span>
+                </td>
+
+                {/* Status */}
+                <td className="whitespace-nowrap px-4 py-3.5 align-middle">
+                  <span
+                    className="inline-flex rounded-full px-2 py-0.5 text-[9px] font-medium"
+                    style={statusStyles[incident.status]}
+                  >
+                    {incident.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Card>
   );
@@ -468,7 +675,7 @@ function OpenIncidents() {
 
 function RiskRanking() {
   return (
-    <Card className="p-5">
+    <Card className="p-5 h-full ">
       <SectionHeader
         eyebrow="Risk Engine"
         title="Risk Ranking"
@@ -736,12 +943,18 @@ export default function ControlRoom() {
 
           <LiveStream />
         </div>
+<div className="mt-4 grid gap-4 lg:grid-cols-3">
 
         {/* Security Row */}
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+         <div className="lg:col-span-2">
           <OpenIncidents />
-          <RiskRanking />
         </div>
+
+        <div className="lg:col-span-1">
+    <RiskRanking />
+  </div>
+
+  </div>
 
         {/* Operations Row */}
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
